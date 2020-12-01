@@ -122,3 +122,7 @@ core/my_settings.py
 
 .DS_Store
 
+user/migrations
+apartment/migrations
+room/migrations
+facility/migrations
