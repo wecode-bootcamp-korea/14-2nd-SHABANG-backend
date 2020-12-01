@@ -53,7 +53,10 @@ THIRD_PARTY_APPS = [
 ]
 
 PROJECT_APPS =[
-    'user'
+    'user',
+    'apartment',
+    'room',
+    'facility',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
