@@ -3,9 +3,9 @@ from django.db import models
 from core      import models as core_models
 
 class User(core_models.TimeStampModel):
-    name   = models.CharField(max_length=100)
-    email  = models.EmailField(max_length=100)
-    phone_number = models.CharField(max_length=100)
+    name         = models.CharField(max_length=100)
+    email        = models.EmailField(max_length=100)
+    phone_number = models.CharField(max_length=100, null=True)
 
     class Meta:
         db_table = 'users'
