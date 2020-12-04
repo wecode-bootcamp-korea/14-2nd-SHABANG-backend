@@ -34,6 +34,8 @@ class ApartmentComplex(models.Model):
 class District(models.Model):
     name         = models.CharField(max_length=100)
     neighborhood = models.ForeignKey('Neighborhood', on_delete=models.SET_NULL, null=True)
+    longitude        = models.DecimalField(max_digits=20, decimal_places=15)
+    latitude         = models.DecimalField(max_digits=20, decimal_places=15)
 
     class Meta:
         db_table = 'districts'
@@ -43,6 +45,8 @@ class District(models.Model):
 
 class Neighborhood(models.Model):
     name = models.CharField(max_length=100)
+    longitude        = models.DecimalField(max_digits=20, decimal_places=15)
+    latitude         = models.DecimalField(max_digits=20, decimal_places=15)
 
     class Meta:
         db_table = 'neighborhoods'
