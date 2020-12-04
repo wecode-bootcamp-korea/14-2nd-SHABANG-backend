@@ -5,10 +5,20 @@ from core      import models as core_models
 class User(core_models.TimeStampModel):
     name         = models.CharField(max_length=100)
     email        = models.EmailField(max_length=100)
-    phone_number = models.CharField(max_length=100, null=True)
+    phone_number = models.CharField(max_length=30, null=True)
+    platform     = models.ForeignKey('PlatForm', on_delete=models.SET_NULL, null=True)
 
     class Meta:
         db_table = 'users'
+
+    def __str__(self):
+        return self.name
+
+class Platform(core_models.TimeStampModel):
+    name  = models.CharField(max_length=20)
+
+    class Meta:
+        db_table = 'platforms'
 
     def __str__(self):
         return self.name

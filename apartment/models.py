@@ -6,11 +6,12 @@ class Apartment(core_models.TimeStampModel):
     price             = models.DecimalField(max_digits=20, decimal_places=4)
     top_floor         = models.IntegerField()
     floor             = models.IntegerField()
-    trade_date        = models.DateTimeField(auto_now=True, null=True)
+    trade_year        = models.IntegerField()
+    trade_month       = models.IntegerField()
     apartment_complex = models.ForeignKey('ApartmentComplex', on_delete=models.CASCADE)
     district          = models.ForeignKey('District', on_delete=models.SET_NULL, null=True)
     trade_type        = models.ForeignKey('TradeType', on_delete=models.SET_NULL, null=True)
-    size              = models.ManyToManyField('Size', through='ApartmentSize')
+    size              = models.ForeignKey('Size', on_delete=models.SET_NULL, null=True)
 
     class Meta:
         db_table = 'apartments'
@@ -63,10 +64,3 @@ class Size(models.Model):
 
     class Meta:
         db_table = 'sizes'
-
-class ApartmentSize(models.Model):
-    area      = models.ForeignKey('Size', on_delete=models.SET_NULL, null=True)
-    apartment = models.ForeignKey('Apartment', on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = 'apartments_sizes'
