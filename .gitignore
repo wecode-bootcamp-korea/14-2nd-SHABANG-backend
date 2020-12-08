@@ -121,3 +121,9 @@ core/my_settings.py
 .vscode
 
 .DS_Store
+
+csv
+db_uploader.py
+core/query_test.py
+db_uploader_apt.py
+db_uploader_room.py
