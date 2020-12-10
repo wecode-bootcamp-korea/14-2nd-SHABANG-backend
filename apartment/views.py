@@ -89,7 +89,7 @@ class ApartmentMapView(View):
 
             apartments            = [c.apartment_set.all()[0] for c in complexes]
             complex_neighborhoods = set(apartment.neighborhood for apartment in apartments)
-            complex_districts     = [neighborhood.district for neighborhood in complex_neighborhoods]
+            complex_districts     = set(neighborhood.district for neighborhood in complex_neighborhoods)
 
             if zoom_level < 5:
                 if not complexes:
@@ -185,8 +185,9 @@ class ApartmentMapView(View):
                             'average_price': [Apartment.objects.filter(neighborhood_id=neighborhood.id).aggregate(Avg('price'))['price__avg'] for neighborhood in Neighborhood.objects.filter(district_id=district.id)]
                         }
                             for district in complex_districts
-                    ]
+                    ]Apartment.objects.filter(neighborhood_id=neighborhood.id).aggrega
 
+                        Neighborhood.objects.filter(district_id=district.id)
                     return JsonResponse({'result': context}, status=200)
 
 
