@@ -6,7 +6,7 @@ class User(core_models.TimeStampModel):
     name         = models.CharField(max_length=100)
     email        = models.EmailField(max_length=100)
     phone_number = models.CharField(max_length=30, null=True)
-    platform     = models.ForeignKey('PlatForm', on_delete=models.SET_NULL, null=True)
+    platform     = models.ForeignKey('Platform', on_delete=models.SET_NULL, null=True)
 
     class Meta:
         db_table = 'users'
