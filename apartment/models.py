@@ -9,7 +9,7 @@ class Apartment(core_models.TimeStampModel):
     trade_year        = models.IntegerField()
     trade_month       = models.IntegerField()
     apartment_complex = models.ForeignKey('ApartmentComplex', on_delete=models.CASCADE)
-    district          = models.ForeignKey('District', on_delete=models.SET_NULL, null=True)
+    neighborhood      = models.ForeignKey('Neighborhood', on_delete=models.SET_NULL, null=True)
     trade_type        = models.ForeignKey('TradeType', on_delete=models.SET_NULL, null=True)
     size              = models.ForeignKey('Size', on_delete=models.SET_NULL, null=True)
 
@@ -32,10 +32,9 @@ class ApartmentComplex(models.Model):
         return self.name
 
 class District(models.Model):
-    name         = models.CharField(max_length=100)
-    neighborhood = models.ForeignKey('Neighborhood', on_delete=models.SET_NULL, null=True)
-    longitude        = models.DecimalField(max_digits=20, decimal_places=15)
-    latitude         = models.DecimalField(max_digits=20, decimal_places=15)
+    name      = models.CharField(max_length=100)
+    longitude = models.DecimalField(max_digits=20, decimal_places=15)
+    latitude  = models.DecimalField(max_digits=20, decimal_places=15)
 
     class Meta:
         db_table = 'districts'
@@ -44,9 +43,10 @@ class District(models.Model):
         return self.name
 
 class Neighborhood(models.Model):
-    name = models.CharField(max_length=100)
-    longitude        = models.DecimalField(max_digits=20, decimal_places=15)
-    latitude         = models.DecimalField(max_digits=20, decimal_places=15)
+    name      = models.CharField(max_length=100)
+    district  = models.ForeignKey('District', on_delete=models.SET_NULL, null=True)
+    longitude = models.DecimalField(max_digits=20, decimal_places=15)
+    latitude  = models.DecimalField(max_digits=20, decimal_places=15)
 
     class Meta:
         db_table = 'neighborhoods'
