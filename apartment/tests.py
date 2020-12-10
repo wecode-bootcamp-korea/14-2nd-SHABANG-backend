@@ -1,3 +1,4 @@
+
 from django.test import TestCase
 from django.test import Client
 from unittest.mock import patch, MagicMock
@@ -218,4 +219,67 @@ class ApartmentGraphTest(TestCase):
     def test_getting_apartments_graph_not_found(self):
         client   = Client()
         response = client.get('/apartment/50?complex=99')
+
+class SearchTest(TestCase):
+
+    maxDiff = None
+
+    def setUp(self):
+        client = Client()
+        
+        ApartmentComplex.objects.create(
+            id               = 99,
+            name             = '위코드아파트',
+            household_number = 1234,
+            completion_year  = 2020,
+            address          = '서울시 위코드동',
+            latitude         = str('37.518740000000001'),
+            longitude        = str('127.020550000000001')
+        )
+
+        Neighborhood.objects.create(
+            id        = 1,
+            name      = "위코드구",
+            latitude  = str('37.523433300000005'),
+            longitude = str('127.024074900000006')
+        )
+
+    def tearDown(self):
+        ApartmentComplex.objects.all().delete()
+        Neighborhood.objects.all().delete()
+
+    def test_getting_search_lists_success(self):
+        client   = Client()
+        response = client.get('/apartment/search?search=위코드')
+        self.assertEquals(response.json(),{
+            "lists": [
+                {
+                    "name"     : "위코드아파트",
+                    "latitude" : str('37.518740000000001'),
+                    "longitude": str('127.020550000000001'),
+                    "address"  : "서울시 위코드동"
+                },
+                {
+                    "name"     : "위코드구",
+                    "latitude" : str('37.523433300000005'),
+                    "longitude": str('127.024074900000006')
+                }
+            ]
+        }
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_getting_search_lists_fail(self):
+        client   = Client()
+        response = client.get('/apartment/search?search=위코드2호점')
+        self.assertEqual(response.json(),
+        {
+            "message":"NO_RESULT"
+        }
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_getting_search_lists_not_found(self):
+        client   = Client()
+        response = client.get('/apartment/search/50')
         self.assertEqual(response.status_code, 404)
