@@ -1,5 +1,6 @@
 import json, re
 
+from itertools import chain
 from haversine import haversine
 from datetime  import datetime
 
@@ -7,8 +8,8 @@ from django.views     import View
 from django.http      import JsonResponse
 from django.db.models import Q, Max, Min, Avg, Count
 
-from .models          import Apartment, ApartmentComplex, District, Neighborhood, TradeType
-from facility.models  import School
+from .models          import Apartment, ApartmentComplex, District, Neighborhood, TradeType, Size
+from facility.models  import School, Subway
 
 class ApartmentGraphView(View):
     def get(self, request, id):
@@ -249,3 +250,38 @@ class ApartmentMapView(View):
 
         except KeyError:
             return JsonResponse({'message':'KEY_ERROR'}, status=400)
+
+class SearchView(View):
+    def get(self, request):
+        try:
+            search = request.GET.get('search')
+
+            complexes     = ApartmentComplex.objects.filter(name__icontains=search)
+            districts     = District.objects.filter(name__icontains=search)
+            neighborhoods = Neighborhood.objects.filter(name__icontains=search)
+            schools       = School.objects.filter(name__icontains=search)
+            subways       = Subway.objects.filter(name__icontains=search)
+            total         = list(chain(districts, neighborhoods, schools, subways))
+
+            complex_lists = [{
+                'name'      : search.name,
+                'latitude'  : search.latitude,
+                'longitude' : search.longitude,
+                'address'   : search.address
+            }for search in complexes]
+
+            else_lists = [{
+                'name'      : search.name,
+                'latitude'  : search.latitude,
+                'longitude' : search.longitude
+            }for search in total]
+
+            lists = complex_lists + else_lists
+
+            return JsonResponse({"lists":lists}, status=200)
+        except ValueError:
+            return JsonResponse({"message":"INVALID_VALUE"}, status=400)
+        except TypeError:
+            return JsonResponse({"message":"INVALID_TYPE"}, status=400)
+        except json.JSONDecodeError as e :
+            return JsonResponse({"message": f'JSON_DECODE_ERROR:{e}'}, status=400)
