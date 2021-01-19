@@ -30,7 +30,7 @@ class KakaoLogInView(View):
             return JsonResponse({'message':'SUCCESS', 'access_token':access_token}, status=200)
 
         except KeyError:
-            return JsonResponse({'message':'KEY_ERROR'}, status=400)
+            return JsonResponse({'message':'KEY_ERROR'}, status=400) 
 
 class GoogleLogInView(View):
     def post(self, request):
