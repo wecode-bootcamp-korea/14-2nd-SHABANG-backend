@@ -35,18 +35,6 @@ with open(CSV_PATH_PRODUCTS) as in_file:
             area=row[0]
         )
 
-CSV_PATH_PRODUCTS = 'district.csv'
-
-with open(CSV_PATH_PRODUCTS) as in_file:
-    data_reader = csv.reader(in_file)
-    next(data_reader, None)
-    for row in data_reader:
-        District.objects.create(
-            name=row[0],
-            latitude=row[1],
-            longitude=row[2],
-        )
-
 CSV_PATH_PRODUCTS = 'neighborhood.csv'
 
 with open(CSV_PATH_PRODUCTS) as in_file:
@@ -56,8 +44,20 @@ with open(CSV_PATH_PRODUCTS) as in_file:
         Neighborhood.objects.create(
             name=row[0],
             latitude=row[1],
-            longitude=row[2],
-            district_id=row[3],
+            longitude=row[2]
+        )
+
+CSV_PATH_PRODUCTS = 'district.csv'
+
+with open(CSV_PATH_PRODUCTS) as in_file:
+    data_reader = csv.reader(in_file)
+    next(data_reader, None)
+    for row in data_reader:
+        District.objects.create(
+            name=row[0],
+            neighborhood_id=row[1],
+            latitude=row[2],
+            longitude=row[3]
         )
 
 CSV_PATH_PRODUCTS = 'trade_type.csv'
@@ -81,12 +81,11 @@ with open(CSV_PATH_PRODUCTS) as in_file:
             top_floor=row[1],
             floor=row[2],
             apartment_complex_id=row[3],
-            neighborhood_id=row[4],
-            district_id=row[5],
-            trade_type_id=row[6],
-            trade_month=row[7],
-            trade_year=row[8],
-            size_id=row[9]
+            district_id=row[4],
+            trade_type_id=row[5],
+            trade_month=row[6],
+            trade_year=row[7],
+            size_id=row[8]
         )
 CSV_PATH_PRODUCTS = 'platform.csv'
 
