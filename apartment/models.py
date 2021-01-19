@@ -11,6 +11,7 @@ class Apartment(core_models.TimeStampModel):
     apartment_complex = models.ForeignKey('ApartmentComplex', on_delete=models.CASCADE)
     neighborhood      = models.ForeignKey('Neighborhood', on_delete=models.SET_NULL, null=True)
     district          = models.ForeignKey('District', on_delete=models.SET_NULL, null=True)
+    neighborhood      = models.ForeignKey('Neighborhood', on_delete=models.SET_NULL, null=True)
     trade_type        = models.ForeignKey('TradeType', on_delete=models.SET_NULL, null=True)
     size              = models.ForeignKey('Size', on_delete=models.SET_NULL, null=True)
 

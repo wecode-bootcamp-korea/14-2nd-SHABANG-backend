@@ -1,13 +1,16 @@
 import json, re
 
-from django.http import Http404
+from django.http import Http404, JsonResponse
+from django.db.models import Q, Max, Min, Avg, Count
+
 from haversine import haversine
 from datetime  import datetime
+from itertools import chain
+
 from django.views     import View
-from django.http      import JsonResponse
-from django.db.models import Q, Max, Min, Avg, Count
-from .models          import Apartment, ApartmentComplex, District, Neighborhood, TradeType
-from facility.models  import School
+from .models          import Apartment, ApartmentComplex, District, Neighborhood, TradeType, Size
+from facility.models  import School, Subway
+
 
 class ApartmentGraphView(View):
     def get(self, request, id):
@@ -62,6 +65,7 @@ class ComplexDetailView(View):
         try:
             apartment_complex = ApartmentComplex.objects.prefetch_related('apartment_set').get(id=complex_id)
             apartments        = apartment_complex.apartment_set.all()
+            
             context = {
                 'complex_id'      : complex_id,
                 'complex_name'    : apartment_complex.name,
@@ -112,13 +116,16 @@ class ApartmentMapView(View):
 
             q_complex   = Q()
             q_apartment = Q()
+
             q_apartment.add(Q(size_id__gt=int(size1)), Q.AND)
             q_apartment.add(Q(size_id__lt=int(size2)), Q.AND)
 
             if household_num:
                 q_complex.add(Q(household_number__gt=household_num), Q.AND)
+
             if year:
                 q_complex.add(Q(completion_year__lt=datetime.today().year-int(year)), Q.AND)
+
             if trade_type:
                 q_apartment.add(Q(trade_type_id=int(trade_type)), Q.AND)
 
@@ -132,6 +139,7 @@ class ApartmentMapView(View):
             if int(zoom_level) < 5:
                 if not complexes:
                     return JsonResponse({'message':'NO_DATA'}, status=200)
+
                 context = {
                     '10'  : [
                         {
@@ -193,6 +201,8 @@ class ApartmentMapView(View):
                             for neighborhood in complex_neighborhoods
                     ]
                     return JsonResponse({'result':context}, status=200)
+
+
                 complex_neighborhoods = [n for n in Neighborhood.objects().all() if haversine((float(latitude),float(longitude)), (n.latitude, n.longitude), unit='km') < 10]
                 context = [
                     {
@@ -200,11 +210,13 @@ class ApartmentMapView(View):
                         'neighborhood_name': neighborhood.name,
                         'latitude': neighborhood.latitude,
                         'longitude': neighborhood.longitude,
-                        'average_price': '-',
+                        'average_price': '-'
                     }
                         for neighborhood in complex_neighborhoods
                 ]
+
                 return JsonResponse({'result':context}, status=200)
+
             if int(zoom_level) == 7:
                 if complexes:
                     context = [
@@ -220,6 +232,7 @@ class ApartmentMapView(View):
                     return JsonResponse({'result': context}, status=200)
 
                 complex_districts = [d for d in District.objects().all() if haversine((float(latitude),float(longitude)),(d.latitude, d.longitude),unit='km') < 10]
+
                 context = [
                     {
                         'district_id'  : district.id ,
@@ -230,7 +243,44 @@ class ApartmentMapView(View):
                     }
                         for district in complex_districts
                 ]
+
                 return JsonResponse({'result': context}, status=200)
 
         except KeyError:
             return JsonResponse({'message':'KEY_ERROR'}, status=400)
+
+          
+class SearchView(View):
+    def get(self, request):
+        try:
+            search = request.GET.get('search')
+
+            complexes     = ApartmentComplex.objects.filter(name__icontains=search)
+            districts     = District.objects.filter(name__icontains=search)
+            neighborhoods = Neighborhood.objects.filter(name__icontains=search)
+            schools       = School.objects.filter(name__icontains=search)
+            subways       = Subway.objects.filter(name__icontains=search)
+            total         = list(chain(districts, neighborhoods, schools, subways))
+
+            complex_lists = [{
+                'name'      : search.name,
+                'latitude'  : search.latitude,
+                'longitude' : search.longitude,
+                'address'   : search.address
+            }for search in complexes]
+
+            else_lists = [{
+                'name'      : search.name,
+                'latitude'  : search.latitude,
+                'longitude' : search.longitude
+            }for search in total]
+
+            lists = complex_lists + else_lists
+
+            return JsonResponse({"lists":lists}, status=200)
+        except ValueError:
+            return JsonResponse({"message":"INVALID_VALUE"}, status=400)
+        except TypeError:
+            return JsonResponse({"message":"INVALID_TYPE"}, status=400)
+        except json.JSONDecodeError as e :
+            return JsonResponse({"message": f'JSON_DECODE_ERROR:{e}'}, status=400)
